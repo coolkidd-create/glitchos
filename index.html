@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090511">
+<title>GlitchOS</title>
+<style>
+:root{--bg:#090511;--panel:rgba(20,12,35,.92);--panel2:#1b1030;--purple:#a855f7;--pink:#ec4899;--text:#f5edff;--muted:#b9a9cf;--line:rgba(192,132,252,.25);--shadow:0 20px 70px #0009}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);background:var(--bg);overflow:hidden}
+#desktop{height:100dvh;position:relative;overflow:hidden;background:radial-gradient(ellipse at 18% 20%,#5b21b6 0,transparent 38%),radial-gradient(ellipse at 80% 70%,#831843 0,transparent 35%),linear-gradient(135deg,#08040f,#160b27 55%,#090511);background-size:cover}
+#desktop:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 40%,#ffffff08 50%,transparent 60%);background-size:220% 100%;animation:shine 12s linear infinite}
+@keyframes shine{to{background-position:-220% 0}}
+#desktopIcons{position:absolute;top:22px;left:18px;display:grid;grid-auto-flow:column;grid-template-rows:repeat(5,88px);gap:8px;z-index:1}
+.desktop-icon{width:76px;border:1px solid transparent;background:transparent;color:white;border-radius:13px;padding:8px 4px;display:flex;align-items:center;flex-direction:column;gap:6px;cursor:pointer;font-size:12px;text-shadow:0 2px 5px #000}
+.desktop-icon:hover,.desktop-icon:focus{background:#ffffff18;border-color:#ffffff22;outline:none}
+.desktop-icon .emoji{font-size:29px;filter:drop-shadow(0 4px 8px #0008)}
+#brand{position:absolute;right:5vw;top:17vh;text-align:right;pointer-events:none;text-shadow:0 8px 35px #000}
+#brand .word{font-size:clamp(40px,8vw,100px);font-weight:900;letter-spacing:-.08em;background:linear-gradient(100deg,#fff,#d8b4fe 45%,#f0abfc);color:transparent;background-clip:text}
+#brand .tag{color:#e9d5ff;letter-spacing:.28em;font-size:12px}
+#taskbar{position:absolute;bottom:0;left:0;right:0;height:66px;background:rgba(12,7,22,.78);backdrop-filter:blur(24px);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 14px;gap:10px;z-index:1000}
+#startBtn,.task-app,.tray-btn{border:1px solid transparent;background:transparent;color:var(--text);cursor:pointer;border-radius:13px;height:44px;min-width:44px;padding:0 12px;font-size:20px}
+#startBtn{background:linear-gradient(135deg,#9333ea,#6d28d9);box-shadow:0 5px 20px #7e22ce55}
+#startBtn:hover,.task-app:hover,.tray-btn:hover{background:#ffffff18;border-color:var(--line)}
+#taskApps{display:flex;gap:5px;flex:1;overflow:auto}
+.task-app{font-size:13px;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.task-app.active{background:#a855f733;border-color:#c084fc66}
+#clock{font-size:12px;text-align:right;min-width:95px;color:#e9d5ff;line-height:1.5}
+#startMenu{display:none;position:absolute;z-index:1100;bottom:76px;left:14px;width:min(360px,calc(100vw - 28px));padding:18px;background:rgba(18,10,31,.96);backdrop-filter:blur(28px);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+#startMenu.show{display:block;animation:pop .16s ease-out}@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.menu-head strong{font-size:20px}
+#appSearch{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#090511;color:white;outline:none;margin-bottom:14px}
+.app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.app-launch{background:#ffffff08;border:1px solid transparent;color:white;border-radius:13px;padding:12px 6px;cursor:pointer;display:flex;align-items:center;gap:7px;flex-direction:column;font-size:12px}
+.app-launch:hover{background:#a855f733;border-color:var(--line)}.app-launch b{font-size:25px}
+.window{position:absolute;z-index:10;width:min(760px,calc(100vw - 24px));height:min(520px,calc(100dvh - 100px));left:50%;top:48%;transform:translate(-50%,-50%);background:rgba(17,10,29,.97);border:1px solid #c084fc66;border-radius:17px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;backdrop-filter:blur(22px)}
+.window.maximized{width:calc(100vw - 18px);height:calc(100dvh - 84px);left:9px;top:9px;transform:none}
+.titlebar{height:46px;flex:none;background:linear-gradient(90deg,#28123e,#170d28);display:flex;align-items:center;padding:0 12px;gap:10px;cursor:move;border-bottom:1px solid var(--line);user-select:none}
+.win-title{font-weight:700;flex:1;font-size:13px}.win-controls{display:flex;gap:7px}.win-controls button{width:26px;height:26px;border-radius:8px;border:0;color:white;background:#ffffff16;cursor:pointer}.win-controls button:last-child{background:#be185d}.win-controls button:hover{filter:brightness(1.3)}
+.win-body{padding:17px;overflow:auto;flex:1;min-height:0}
+h2{margin:0 0 12px;font-size:20px}p{color:var(--muted);line-height:1.5}
+button,.btn{font:inherit}.primary,.btn{border:1px solid #c084fc66;background:linear-gradient(135deg,#9333ea,#6d28d9);color:white;padding:9px 13px;border-radius:10px;cursor:pointer}.secondary{border:1px solid var(--line);background:#ffffff0c;color:white;padding:9px 13px;border-radius:10px;cursor:pointer}
+input,textarea,select{font:inherit;color:white;background:#0c0715;border:1px solid var(--line);border-radius:9px;padding:10px;outline:none}input:focus,textarea:focus{border-color:#c084fc}
+textarea{width:100%;min-height:240px;resize:vertical;line-height:1.5}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.file-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px}
+.file-item{background:#ffffff09;border:1px solid var(--line);border-radius:12px;padding:13px;cursor:pointer;min-height:90px}.file-item:hover{background:#a855f722}.file-item .file-emoji{font-size:25px;display:block;margin-bottom:7px}.file-item small{color:var(--muted);overflow-wrap:anywhere}
+.calc{max-width:340px;margin:auto}.calc-display{width:100%;font-size:26px;text-align:right;margin-bottom:10px}.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.calc-grid button{padding:15px 5px;border:1px solid var(--line);border-radius:10px;background:#ffffff0d;color:white;font-size:18px;cursor:pointer}.calc-grid button:hover{background:#9333ea66}
+.terminal{background:#050308;border-radius:12px;padding:14px;min-height:300px;font:13px ui-monospace,monospace;color:#c4b5fd}.terminal-output{white-space:pre-wrap;min-height:230px;line-height:1.5}.terminal-line{display:flex;gap:8px}.terminal-line span{color:#e879f9}.terminal-line input{flex:1;border:0;background:transparent;padding:4px;font:inherit}
+.browser-frame{width:100%;height:340px;border:1px solid var(--line);border-radius:12px;background:white}.note-status{color:#c4b5fd;font-size:12px;margin-left:auto}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.wallpapers{display:flex;gap:10px;flex-wrap:wrap}.wallpaper{width:105px;height:65px;border-radius:10px;border:2px solid transparent;cursor:pointer}.wallpaper.selected{border-color:white}
+.game-box{max-width:440px;margin:auto;text-align:center;background:#ffffff08;border:1px solid var(--line);border-radius:15px;padding:20px}.game-number{font-size:42px;font-weight:800;color:#e9d5ff}
+#toast{position:absolute;bottom:82px;right:18px;z-index:2000;background:#211333;border:1px solid var(--line);padding:11px 15px;border-radius:12px;display:none;box-shadow:var(--shadow)}
+@media(max-width:600px){#brand{top:30vh;right:8vw}#desktopIcons{grid-template-rows:repeat(4,78px);grid-auto-flow:row;grid-template-columns:repeat(2,76px)}.window{height:calc(100dvh - 90px)}#taskbar{height:60px;padding:0 7px}#clock{min-width:72px;font-size:10px}.task-app{padding:0 8px}}
+</style>
+</head>
+<body>
+<div id="desktop">
+  <div id="desktopIcons"></div>
+  <div id="brand"><div class="word">GlitchOS</div><div class="tag">YOUR WORLD. YOUR DESKTOP.</div></div>
+  <div id="startMenu">
+    <div class="menu-head"><strong>⚡ GlitchOS</strong><span style="color:var(--muted);font-size:12px">Apps</span></div>
+    <input id="appSearch" placeholder="Search apps…" autocomplete="off">
+    <div class="app-grid" id="appGrid"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:16px;color:var(--muted);font-size:12px"><span>GlitchOS Browser Edition</span><button class="secondary" id="powerBtn">⏻ Power</button></div>
+  </div>
+  <div id="taskbar"><button id="startBtn" title="Start menu">✦</button><div id="taskApps"></div><button class="tray-btn" id="quickSettings" title="Settings">⚙</button><div id="clock"></div></div>
+  <div id="toast"></div>
+</div>
+<script>
+const apps=[
+ {id:'files',name:'File Manager',icon:'📁',open:openFiles},
+ {id:'notes',name:'Notepad',icon:'📝',open:openNotes},
+ {id:'calc',name:'Calculator',icon:'🧮',open:openCalc},
+ {id:'browser',name:'Browser',icon:'🌐',open:openBrowser},
+ {id:'terminal',name:'Terminal',icon:'⌨️',open:openTerminal},
+ {id:'settings',name:'Settings',icon:'⚙️',open:openSettings},
+ {id:'game',name:'Mini Game',icon:'🎮',open:openGame},
+ {id:'about',name:'About GlitchOS',icon:'💜',open:openAbout}
+];
+const $=s=>document.querySelector(s), desktop=$('#desktop');
+let z=20, windows={}, active=''; const STORAGE='glitchos-v1';
+let state=loadState();
+function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE))||{files:[{name:'Welcome.txt',content:'Welcome to GlitchOS!\\n\\nYour browser desktop is ready. Open apps, create files, and make it yours.',type:'text'}],notes:'',wallpaper:0,theme:'purple'}}catch{return {files:[],notes:'',wallpaper:0,theme:'purple'}}}
+function saveState(){localStorage.setItem(STORAGE,JSON.stringify(state))}
+function toast(msg){let t=$('#toast');t.textContent=msg;t.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.display='none',2300)}
+function renderApps(){
+ $('#desktopIcons').innerHTML=apps.slice(0,6).map(a=>`<button class="desktop-icon" data-app="${a.id}"><span class="emoji">${a.icon}</span><span>${a.name}</span></button>`).join('');
+ $('#appGrid').innerHTML=apps.map(a=>`<button class="app-launch" data-app="${a.id}"><b>${a.icon}</b>${a.name}</button>`).join('');
+ document.querySelectorAll('[data-app]').forEach(b=>b.addEventListener('click',()=>launch(b.dataset.app)));
+}
+function launch(id){$('#startMenu').classList.remove('show');let app=apps.find(a=>a.id===id);if(!app)return;if(windows[id]){windows[id].style.display='flex';focusWindow(id);return}app.open()}
+function makeWindow(id,title,icon,content){
+ if(windows[id]){windows[id].remove();delete windows[id]}
+ const w=document.createElement('section');w.className='window';w.dataset.id=id;w.style.zIndex=++z;
+ w.innerHTML=`<div class="titlebar"><span>${icon}</span><span class="win-title">${title}</span><div class="win-controls"><button data-min title="Minimize">−</button><button data-max title="Maximize">□</button><button data-close title="Close">×</button></div></div><div class="win-body">${content}</div>`;
+ desktop.appendChild(w);windows[id]=w;
+ w.addEventListener('pointerdown',()=>focusWindow(id));
+ w.querySelector('[data-close]').onclick=()=>{w.remove();delete windows[id];renderTaskbar()};
+ w.querySelector('[data-min]').onclick=()=>{w.style.display='none';renderTaskbar()};
+ w.querySelector('[data-max]').onclick=()=>w.classList.toggle('maximized');
+ drag(w);renderTaskbar();return w;
+}
+function focusWindow(id){let w=windows[id];if(!w)return;w.style.zIndex=++z;active=id;renderTaskbar()}
+function drag(w){let bar=w.querySelector('.titlebar'),sx,sy,ox,oy,moving=false;bar.addEventListener('pointerdown',e=>{if(e.target.closest('button')||w.classList.contains('maximized'))return;moving=true;sx=e.clientX;sy=e.clientY;let r=w.getBoundingClientRect();ox=r.left;oy=r.top;bar.setPointerCapture(e.pointerId)});bar.addEventListener('pointermove',e=>{if(!moving)return;w.style.left=Math.max(0,Math.min(innerWidth-w.offsetWidth,ox+e.clientX-sx))+'px';w.style.top=Math.max(0,Math.min(innerHeight-90,oy+e.clientY-sy))+'px';w.style.transform='none'});bar.addEventListener('pointerup',()=>moving=false)}
+function renderTaskbar(){let el=$('#taskApps');el.innerHTML=Object.keys(windows).map(id=>{let a=apps.find(x=>x.id===id);return `<button class="task-app ${active===id?'active':''}" data-task="${id}">${a.icon} ${a.name}</button>`}).join('');el.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{let id=b.dataset.task,w=windows[id];if(w.style.display==='none')w.style.display='flex';focusWindow(id)})}
+function openFiles(){let w=makeWindow('files','File Manager','📁',`<div class="toolbar"><button class="primary" id="newFile">＋ New text file</button><button class="secondary" id="exportFiles">⇩ Export files</button><button class="secondary" id="importFiles">⇧ Import</button><input id="fileImport" type="file" accept=".txt,.json,text/plain,application/json" hidden></div><div class="file-list" id="fileList"></div><p style="font-size:12px">Files are saved in this browser on this device.</p>`);
+ const list=w.querySelector('#fileList');function draw(){list.innerHTML=state.files.map((f,i)=>`<div class="file-item" data-file="${i}"><span class="file-emoji">${f.type==='text'?'📄':'📦'}</span><strong>${esc(f.name)}</strong><br><small>${(f.content||'').length} characters</small><div style="margin-top:8px"><button class="secondary" data-edit="${i}">Open</button> <button class="secondary" data-del="${i}">×</button></div></div>`).join('')||'<p>No files yet. Create one to get started.</p>';list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editFile(+b.dataset.edit));list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{state.files.splice(+b.dataset.del,1);saveState();draw();toast('File deleted')})}draw();
+ w.querySelector('#newFile').onclick=()=>{let name=prompt('File name?','New file.txt');if(!name)return;state.files.push({name,content:'',type:'text'});saveState();draw();editFile(state.files.length-1)};
+ function editFile(i){let f=state.files[i];let ew=makeWindow('editfile','Editing: '+f.name,'📄',`<div class="toolbar"><button class="primary" id="saveFile">Save</button><button class="secondary" id="downloadFile">Download</button><span class="note-status" id="fileStatus"></span></div><textarea id="fileText"></textarea>`);ew.querySelector('#fileText').value=f.content;ew.querySelector('#saveFile').onclick=()=>{f.content=ew.querySelector('#fileText').value;saveState();ew.querySelector('#fileStatus').textContent='Saved ✓';toast('Saved '+f.name)};ew.querySelector('#downloadFile').onclick=()=>download(f.name,ew.querySelector('#fileText').value)}
+ w.querySelector('#exportFiles').onclick=()=>download('glitchos-files.json',JSON.stringify(state.files,null,2),'application/json');
+ w.querySelector('#importFiles').onclick=()=>w.querySelector('#fileImport').click();
+ w.querySelector('#fileImport').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let txt=await f.text();if(f.name.endsWith('.json')){let data=JSON.parse(txt);if(Array.isArray(data))state.files.push(...data)}else state.files.push({name:f.name,content:txt,type:'text'});saveState();draw();toast('Imported '+f.name)}catch{toast('Could not import file')}};
+}
+function openNotes(){let w=makeWindow('notes','Notepad','📝',`<div class="toolbar"><button class="primary" id="saveNote">Save note</button><button class="secondary" id="downloadNote">Download .txt</button><span class="note-status" id="noteStatus">Autosave is on</span></div><textarea id="noteArea" placeholder="Start writing…"></textarea>`);let area=w.querySelector('#noteArea');area.value=state.notes||'';area.oninput=()=>{state.notes=area.value;saveState();w.querySelector('#noteStatus').textContent='Autosaved ✓'};w.querySelector('#saveNote').onclick=()=>{state.notes=area.value;saveState();toast('Note saved')};w.querySelector('#downloadNote').onclick=()=>download('GlitchOS-Note.txt',area.value)}
+function openCalc(){let w=makeWindow('calc','Calculator','🧮',`<div class="calc"><input class="calc-display" id="display" value="0" readonly><div class="calc-grid">${['C','⌫','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','±','0','.','='].map(x=>`<button data-key="${x}">${x}</button>`).join('')}</div></div>`);let d=w.querySelector('#display');let expr='';w.querySelectorAll('[data-key]').forEach(b=>b.onclick=()=>{let k=b.dataset.key;if(k==='C'){expr='';d.value='0'}else if(k==='⌫'){expr=expr.slice(0,-1);d.value=expr||'0'}else if(k==='='){try{let safe=expr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');if(!/^[0-9+\-*/%.() ]+$/.test(safe))throw 0;let result=Function('"use strict";return ('+safe+')')();if(!Number.isFinite(result))throw 0;expr=String(result);d.value=expr}catch{d.value='Error';expr=''}}else if(k==='±'){if(expr.startsWith('-'))expr=expr.slice(1);else expr='-'+expr;d.value=expr}else{expr+=k;d.value=expr}})}
+function openBrowser(){let w=makeWindow('browser','Browser','🌐',`<form class="toolbar" id="navForm"><input id="url" style="flex:1;min-width:150px" value="https://example.com" placeholder="Enter a website URL"><button class="primary">Go</button></form><p>Some websites block being displayed inside another app. If a page does not load, use the open button.</p><iframe class="browser-frame" id="webFrame" title="Browser preview" sandbox="allow-forms allow-scripts allow-same-origin allow-popups"></iframe><div class="toolbar" style="margin-top:10px"><button class="secondary" id="openTab">Open in new tab ↗</button></div>`);let input=w.querySelector('#url'),frame=w.querySelector('#webFrame');function go(){let u=input.value.trim();if(!/^https?:\\/\\//i.test(u))u='https://'+u;try{new URL(u);input.value=u;frame.src=u}catch{toast('That address does not look right')}}w.querySelector('#navForm').onsubmit=e=>{e.preventDefault();go()};w.querySelector('#openTab').onclick=()=>{let u=input.value.trim();if(!/^https?:\\/\\//i.test(u))u='https://'+u;window.open(u,'_blank','noopener')};go()}
+function openTerminal(){let w=makeWindow('terminal','Terminal','⌨️',`<div class="terminal"><div class="terminal-output" id="termOut">GlitchOS Terminal v1.0\\nType <b>help</b> to see commands.\\n\\n</div><form class="terminal-line" id="termForm"><span>guest@glitchos:~$</span><input id="termInput" autocomplete="off" autofocus></form></div>`);let out=w.querySelector('#termOut'),inp=w.querySelector('#termInput');w.querySelector('#termForm').onsubmit=e=>{e.preventDefault();let cmd=inp.value.trim(),parts=cmd.split(' ');out.innerHTML+=`<div>guest@glitchos:~$ ${esc(cmd)}</div>`;let response='';switch(parts[0]){case'help':response='Commands: help, date, whoami, ls, clear, echo [text], neofetch, open [app], reboot';break;case'date':response=new Date().toString();break;case'whoami':response='guest';break;case'ls':response=state.files.map(f=>f.name).join('\\n')||'No files';break;case'echo':response=cmd.slice(5);break;case'neofetch':response='✦ GlitchOS\\n  Browser Edition\\n  Neon purple desktop\\n  Apps: '+apps.length+'\\n  Files: '+state.files.length;break;case'clear':out.textContent='';inp.value='';return;case'open':let a=apps.find(x=>x.id===parts[1]||x.name.toLowerCase()===parts.slice(1).join(' ').toLowerCase());if(a){launch(a.id);response='Opening '+a.name}else response='App not found. Try: '+apps.map(a=>a.id).join(', ');break;case'reboot':response='Refreshing GlitchOS…';setTimeout(()=>location.reload(),500);break;case'':break;default:response='Command not found: '+parts[0]};out.innerHTML+=`<div style="color:#c4b5fd;white-space:pre-wrap;margin-bottom:8px">${esc(response)}</div>`;inp.value='';out.scrollTop=out.scrollHeight}}
+function openSettings(){let w=makeWindow('settings','Settings','⚙️',`<h2>Personalize GlitchOS</h2><div class="setting-row"><div><strong>Desktop wallpaper</strong><p style="margin:4px 0 0">Choose your neon look.</p></div></div><div class="wallpapers"><button class="wallpaper" data-wall="0" style="background:radial-gradient(at 20% 20%,#7e22ce,#090511 70%)"></button><button class="wallpaper" data-wall="1" style="background:radial-gradient(at 80% 20%,#1d4ed8,#080511 70%)"></button><button class="wallpaper" data-wall="2" style="background:radial-gradient(at 20% 80%,#be185d,#090511 70%)"></button><button class="wallpaper" data-wall="3" style="background:linear-gradient(135deg,#111827,#312e81,#581c87)"></button></div><div class="setting-row"><div><strong>Storage</strong><p style="margin:4px 0 0">Browser-local data</p></div><span>${state.files.length} files</span></div><div class="setting-row"><div><strong>Clear GlitchOS data</strong><p style="margin:4px 0 0">Deletes saved files and notes from this browser.</p></div><button class="secondary" id="clearData">Clear data</button></div><p style="font-size:12px">Your data stays in this browser using local storage. Clearing browser data may erase it.</p>`);w.querySelectorAll('[data-wall]').forEach(b=>{b.classList.toggle('selected',+b.dataset.wall===state.wallpaper);b.onclick=()=>{state.wallpaper=+b.dataset.wall;saveState();applyWallpaper();w.querySelectorAll('[data-wall]').forEach(x=>x.classList.toggle('selected',x===b))}});w.querySelector('#clearData').onclick=()=>{if(confirm('Delete all GlitchOS files and notes?')){state.files=[];state.notes='';saveState();toast('Local data cleared');openFiles()}}}
+function applyWallpaper(){let styles=['radial-gradient(ellipse at 18% 20%,#5b21b6 0,transparent 38%),radial-gradient(ellipse at 80% 70%,#831843 0,transparent 35%),linear-gradient(135deg,#08040f,#160b27 55%,#090511)','radial-gradient(ellipse at 20% 20%,#1d4ed8,transparent 42%),radial-gradient(ellipse at 80% 80%,#6d28d9,transparent 35%),#050817','radial-gradient(ellipse at 20% 20%,#be185d,transparent 42%),radial-gradient(ellipse at 80% 80%,#7e22ce,transparent 35%),#100511','linear-gradient(135deg,#111827,#312e81,#581c87)'];desktop.style.background=styles[state.wallpaper||0]}
+function openGame(){let w=makeWindow('game','Mini Game: Guess the Number','🎮',`<div class="game-box"><h2>Guess the Number</h2><p>I'm thinking of a number from 1 to 20. Can you find it?</p><div class="game-number">?</div><div class="toolbar" style="justify-content:center"><input id="guess" type="number" min="1" max="20" placeholder="Your guess" style="width:130px"><button class="primary" id="guessBtn">Guess</button><button class="secondary" id="newGame">New game</button></div><p id="gameMsg">Good luck!</p><p style="font-size:12px">Attempts: <span id="attempts">0</span></p></div>`);let answer=Math.ceil(Math.random()*20),count=0;w.querySelector('#guessBtn').onclick=()=>{let n=+w.querySelector('#guess').value;if(n<1||n>20){w.querySelector('#gameMsg').textContent='Enter a number from 1 to 20.';return}count++;w.querySelector('#attempts').textContent=count;w.querySelector('#gameMsg').textContent=n===answer?'🎉 You got it!':'Too '+(n<answer?'low':'high')+' — try again!';if(n===answer)w.querySelector('.game-number').textContent=answer};w.querySelector('#newGame').onclick=()=>{answer=Math.ceil(Math.random()*20);count=0;w.querySelector('.game-number').textContent='?';w.querySelector('#attempts').textContent='0';w.querySelector('#gameMsg').textContent='New number picked!';w.querySelector('#guess').value=''}}
+function openAbout(){makeWindow('about','About GlitchOS','💜',`<div style="text-align:center;padding:25px"><div style="font-size:60px">✦</div><h2 style="font-size:34px">GlitchOS</h2><p>A neon-powered desktop that lives in your browser.</p><p><b>Version:</b> 1.0<br><b>Edition:</b> Browser OS<br><b>Built with:</b> HTML, CSS & JavaScript</p><p style="font-size:12px">This is a browser-based desktop simulation, not a replacement for Windows, macOS, ChromeOS, or a device operating system.</p></div>`)}
+function download(name,content,type='text/plain'){let blob=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('#startBtn').onclick=()=>$('#startMenu').classList.toggle('show');$('#quickSettings').onclick=()=>launch('settings');$('#powerBtn').onclick=()=>{if(confirm('Refresh GlitchOS?'))location.reload()};
+$('#appSearch').oninput=e=>{let q=e.target.value.toLowerCase();$('#appGrid').querySelectorAll('.app-launch').forEach(b=>b.style.display=b.textContent.toLowerCase().includes(q)?'flex':'none')};
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#startMenu')&&!e.target.closest('#startBtn'))$('#startMenu').classList.remove('show')});
+function tick(){let d=new Date();$('#clock').innerHTML=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+'<br>'+d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'})}setInterval(tick,1000);tick();renderApps();applyWallpaper();renderTaskbar();
+</script>
+</body>
+</html>
